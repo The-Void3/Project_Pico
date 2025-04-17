@@ -1,0 +1,7 @@
+python-dotenv 
+pveagle 
+pvrecorder 
+customtkinter
+vosk
+numpy
+PyQt6
