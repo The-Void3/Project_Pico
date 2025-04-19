@@ -5,9 +5,10 @@ from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont
 from PyQt6.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QStackedWidget
 from .Weather_screen import WeatherScreen
+from PicoVoice import PicoVoiceEagle, DEV_MODE
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from PicoVoice import PicoVoiceEagle
+
 
 class LoadingSpinner(QWidget):
     def __init__(self, parent=None, size=1000, line_width=6, speed=10, color="#3498db"):
@@ -57,8 +58,11 @@ class EnrollmentThread(QThread):
     finished = pyqtSignal()
 
     def run(self):
-        pico = PicoVoiceEagle()
-        pico.enroll()
+        if DEV_MODE:
+            print("🧪 DEV_MODE active: skipping enrollment in background thread.")
+        else:
+            pico = PicoVoiceEagle()
+            pico.enroll()
         self.finished.emit()
 
 class EnrollmentProgress(QWidget):

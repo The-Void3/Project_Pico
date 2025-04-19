@@ -10,28 +10,33 @@ from vosk import Model, KaldiRecognizer
 
 load_dotenv()
 
+DEV_MODE = True  # Set to False for real usage
+
 
 class PicoVoiceEagle:
-
-    def __init__(self):
+    def __init__(self, load_profile=True):  # Allow turning off profile loading
         self.DEFAULT_DEVICE_INDEX = -1
         self.access_key = os.getenv("ACCESS_KEY")
         self.eagle_profiler = pveagle.create_profiler(access_key=self.access_key)
         self.speaker_profile = None
-        
-    def speech_to_text(self, prints: bool = True, model_path: str = r"vosk-model-small-en-us-0.15") -> Generator[str, None, None]:
-        
-        start_time = time.time()
 
-        # Use default recording device
+        if DEV_MODE and load_profile:
+            print("🧪 DEV_MODE: Loading pre-saved profile...")
+            try:
+                with open("speaker_profile.eagle", "rb") as f:
+                    speaker_profile_bytes = f.read()
+                self.speaker_profile = pveagle.EagleProfile.from_bytes(speaker_profile_bytes)
+            except FileNotFoundError:
+                print("❌ No speaker_profile.eagle file found — skipping load.")
+
+    def speech_to_text(self, prints: bool = True, model_path: str = r"vosk-model-small-en-us-0.15") -> Generator[
+        str, None, None]:
+        start_time = time.time()
         device_index = -1
-        
-        # Load Vosk model
         model = Model(model_path)
         recognizer = KaldiRecognizer(model, 16000)
         print("Model Initialized")
 
-        # Initialize recorder
         recorder = PvRecorder(frame_length=512, device_index=device_index)
 
         try:
@@ -39,14 +44,11 @@ class PicoVoiceEagle:
             print("Recording... Press Ctrl+C to stop.")
 
             while time.time() - start_time < 5:
-                # Read audio data from recorder
                 frame = recorder.read()
-                # Convert to bytes (Vosk requires byte input)
                 audio_data = np.int16(frame).tobytes()
-
                 if recognizer.AcceptWaveform(audio_data):
                     result = recognizer.Result()
-                    text = eval(result).get('text', '')
+                    text = ast.literal_eval(result).get('text', '')
                     if text and prints:
                         print(f"Recognized: {text}")
                     yield text
@@ -54,16 +56,15 @@ class PicoVoiceEagle:
             print("\nStopping...")
         finally:
             recorder.stop()
-            recorder.delete()         
-
+            recorder.delete()
 
     def enroll(self):
+        print("🚨 enroll() was called!")  # Debug print for tracking
 
         recorder = PvRecorder(
             device_index=self.DEFAULT_DEVICE_INDEX,
             frame_length=self.eagle_profiler.min_enroll_samples
         )
-
         recorder.start()
 
         enroll_percentage = 0
@@ -73,7 +74,6 @@ class PicoVoiceEagle:
             print(f"Enrollment: {enroll_percentage:.2f} - {feedback}")
 
         recorder.stop()
-
         self.speaker_profile = self.eagle_profiler.export()
 
         with open("speaker_profile.eagle", "wb") as f:
@@ -82,10 +82,9 @@ class PicoVoiceEagle:
         recorder.delete()
 
     def listening(self):
-        with open("speaker_profile.eagle", "rb") as f:
-            speaker_profile_bytes = f.read()
-
-        self.speaker_profile = pveagle.EagleProfile.from_bytes(speaker_profile_bytes)
+        if not self.speaker_profile:
+            print("🔁 Speaker profile not loaded. Aborting listening.")
+            return
 
         eagle = pveagle.create_recognizer(
             access_key=self.access_key,
@@ -115,12 +114,11 @@ class PicoVoiceEagle:
         recorder.stop()
         recorder.delete()
         eagle.delete()
-    
+
     def handle_command(self, command: str):
         command = command.lower()
         if "turn on the light" in command:
             print("🟡 Turning on the light...")
-            # your GPIO or Bluetooth command here
         elif "turn off the light" in command:
             print("⚫ Turning off the light...")
         elif "what time is it" in command:

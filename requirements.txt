@@ -5,3 +5,4 @@ customtkinter
 vosk
 numpy
 PyQt6
+pyaudio

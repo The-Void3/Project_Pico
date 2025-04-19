@@ -4,7 +4,7 @@ import os
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
-from PicoVoice import PicoVoiceEagle
+from PicoVoice import PicoVoiceEagle, DEV_MODE  # ← include DEV_MODE
 
 from Screens.WelcomeUserScreen import WelcomeUserScreen
 
@@ -57,15 +57,15 @@ class EnrollmentScreen(QWidget):
             QMessageBox.warning(self, "Invalid Input", "Please enter a valid name and 4-digit PIN.")
             return
 
-        QMessageBox.information(self, "Voice Enrollment", "Please speak into your microphone until the enrollment process is complete.")
-
-        # Voice enrollment
-        self.voice_assistant.enroll()
+        if DEV_MODE:
+            print("🧪 DEV_MODE active — skipping actual enrollment.")
+        else:
+            QMessageBox.information(self, "Voice Enrollment", "Please speak into your microphone until the enrollment process is complete.")
+            self.voice_assistant.enroll()
 
         self.save_profile(name, pin)
         QMessageBox.information(self, "Success", "Enrollment complete!")
 
-        # After enrolling, go to the WelcomeUserScreen
         welcome_screen = WelcomeUserScreen(self.stack, self.weather_screen, user_name=name)
         self.stack.addWidget(welcome_screen)
         self.stack.setCurrentWidget(welcome_screen)

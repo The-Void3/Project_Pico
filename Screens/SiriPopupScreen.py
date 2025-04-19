@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsOpacityEffect
+from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation
 from PyQt6.QtGui import QFont
 
 class SiriPopupScreen(QWidget):
@@ -32,15 +32,36 @@ class SiriPopupScreen(QWidget):
         layout.addSpacing(20)
         layout.addWidget(self.query_label)
         layout.addWidget(self.response_label)
-
         self.setLayout(layout)
+
+        # Fade animation setup
+        self.opacity_effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(self.opacity_effect)
+        self.fade_anim = QPropertyAnimation(self.opacity_effect, b"opacity")
+        self.fade_anim.setDuration(400)
 
     def show_query(self, query: str):
         self.query_label.setText(f"You said: {query}")
+        self.fade_in()
 
     def show_response(self, response: str):
         self.response_label.setText(response)
-        QTimer.singleShot(5000, self.hide_popup)
+        QTimer.singleShot(5000, self.fade_out)
+
+    def fade_in(self):
+        self.opacity_effect.setOpacity(0.0)
+        self.stack.setCurrentWidget(self)
+        self.fade_anim.stop()
+        self.fade_anim.setStartValue(0.0)
+        self.fade_anim.setEndValue(1.0)
+        self.fade_anim.start()
+
+    def fade_out(self):
+        self.fade_anim.stop()
+        self.fade_anim.setStartValue(1.0)
+        self.fade_anim.setEndValue(0.0)
+        self.fade_anim.start()
+        self.fade_anim.finished.connect(self.hide_popup)
 
     def hide_popup(self):
         self.stack.setCurrentWidget(self.weather_screen)

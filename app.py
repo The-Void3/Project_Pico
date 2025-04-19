@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QStackedWidget, QPushButton
 from Screens.loadingwheel import EnrollmentProgress
 from Screens.Weather_screen import WeatherScreen
 from Screens.SiriPopupScreen import SiriPopupScreen
-from PicoVoice import PicoVoiceEagle
+from PicoVoice import PicoVoiceEagle, DEV_MODE
 
 
 class App:
@@ -12,9 +12,8 @@ class App:
         self.stack = QStackedWidget()
         self.stack.resize(1200, 800)
 
-        self.voice_assistant = PicoVoiceEagle()
+        self.voice_assistant = PicoVoiceEagle(load_profile=True)
 
-        # Initialize screens
         self.weather_screen = WeatherScreen()
         self.siri_popup = SiriPopupScreen(self.stack, self.weather_screen)
         self.enrollment_screen = EnrollmentProgress(
@@ -23,12 +22,10 @@ class App:
             self.voice_assistant
         )
 
-        # Test button to simulate wake word trigger
         self.test_button = QPushButton("🎤 Activate Assistant")
         self.test_button.clicked.connect(self.simulate_assistant_trigger)
         self.weather_screen.layout().addWidget(self.test_button)
 
-        # Add screens to stack
         self.stack.addWidget(self.enrollment_screen)
         self.stack.addWidget(self.weather_screen)
         self.stack.addWidget(self.siri_popup)
@@ -39,7 +36,10 @@ class App:
         self.siri_popup.show_response("It's 75°F and sunny in McAllen.")
 
     def run(self):
-        self.stack.setCurrentWidget(self.enrollment_screen)
+        if DEV_MODE:
+            self.stack.setCurrentWidget(self.weather_screen)
+        else:
+            self.stack.setCurrentWidget(self.enrollment_screen)
         self.stack.show()
         sys.exit(self.app.exec())
 
