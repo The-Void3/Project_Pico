@@ -3,6 +3,7 @@ import pveagle
 import os
 import time
 import numpy as np
+import subprocess
 from dotenv import load_dotenv
 from pvrecorder import PvRecorder
 from typing import Generator
@@ -127,3 +128,18 @@ class PicoVoiceEagle:
             print(f"🕒 The current time is {now}")
         else:
             print("🤖 Command not recognized.")
+
+    def llama_query(self, prompt: str) -> str:
+        try:
+            process = subprocess.Popen(
+                ["ollama", "run", "llama3", prompt],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            stdout, stderr = process.communicate(timeout=90)
+            return stdout.strip() if stdout else f"❌ LLaMA Error: {stderr.strip()}"
+        except subprocess.TimeoutExpired:
+            return "Sorry, the model took too long to respond."
+        except Exception as e:
+            return f"❌ LLaMA query failed: {e}"

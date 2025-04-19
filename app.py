@@ -22,7 +22,7 @@ class App:
             self.voice_assistant
         )
 
-        self.test_button = QPushButton("🎤 Activate Assistant")
+        self.test_button = QPushButton("🎤 Activate Jarvis")
         self.test_button.clicked.connect(self.simulate_assistant_trigger)
         self.weather_screen.layout().addWidget(self.test_button)
 
@@ -31,9 +31,19 @@ class App:
         self.stack.addWidget(self.siri_popup)
 
     def simulate_assistant_trigger(self):
-        self.stack.setCurrentWidget(self.siri_popup)
-        self.siri_popup.show_query("What's the weather?")
-        self.siri_popup.show_response("It's 75°F and sunny in McAllen.")
+        try:
+            # 1. Capture voice input using Vosk
+            transcript = next(self.voice_assistant.speech_to_text())
+
+            # 2. Send to local LLaMA model
+            response = self.voice_assistant.llama_query(transcript)
+
+            # 3. Display on the popup
+            self.siri_popup.show_query(transcript)
+            self.siri_popup.show_response(response)
+
+        except Exception as e:
+            print(f"❌ Error during assistant trigger: {e}")
 
     def run(self):
         if DEV_MODE:
