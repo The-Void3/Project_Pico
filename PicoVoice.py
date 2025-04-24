@@ -3,7 +3,7 @@ import pveagle
 import os
 import time
 import numpy as np
-import subprocess
+import requests
 from dotenv import load_dotenv
 from pvrecorder import PvRecorder
 from typing import Generator
@@ -13,9 +13,8 @@ load_dotenv()
 
 DEV_MODE = True  # Set to False for real usage
 
-
 class PicoVoiceEagle:
-    def __init__(self, load_profile=True):  # Allow turning off profile loading
+    def __init__(self, load_profile=True):
         self.DEFAULT_DEVICE_INDEX = -1
         self.access_key = os.getenv("ACCESS_KEY")
         self.eagle_profiler = pveagle.create_profiler(access_key=self.access_key)
@@ -30,8 +29,7 @@ class PicoVoiceEagle:
             except FileNotFoundError:
                 print("❌ No speaker_profile.eagle file found — skipping load.")
 
-    def speech_to_text(self, prints: bool = True, model_path: str = r"vosk-model-small-en-us-0.15") -> Generator[
-        str, None, None]:
+    def speech_to_text(self, prints: bool = True, model_path: str = r"vosk-model-small-en-us-0.15") -> Generator[str, None, None]:
         start_time = time.time()
         device_index = -1
         model = Model(model_path)
@@ -131,15 +129,18 @@ class PicoVoiceEagle:
 
     def llama_query(self, prompt: str) -> str:
         try:
-            process = subprocess.Popen(
-                ["ollama", "run", "llama3", prompt],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3",
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=30
             )
-            stdout, stderr = process.communicate(timeout=90)
-            return stdout.strip() if stdout else f"❌ LLaMA Error: {stderr.strip()}"
-        except subprocess.TimeoutExpired:
-            return "Sorry, the model took too long to respond."
+            data = response.json()
+            return data.get("response", "⚠️ No response from model.")
+        except requests.exceptions.Timeout:
+            return "⏳ The model took too long to respond."
         except Exception as e:
-            return f"❌ LLaMA query failed: {e}"
+            return f"❌ API call failed: {e}"

@@ -1,8 +1,9 @@
-python-dotenv 
-pveagle 
-pvrecorder 
-customtkinter
-vosk
-numpy
-PyQt6
+python-dotenv~=1.1.0
+pveagle~=1.0.4
+pvrecorder~=1.2.7
+customtkinter~=5.2.2
+vosk~=0.3.45
+numpy~=2.2.4
+PyQt6~=6.9.0
 pyaudio
+requests~=2.32.3
