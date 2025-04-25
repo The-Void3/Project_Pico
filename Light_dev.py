@@ -140,7 +140,7 @@ class PicoVoiceEagle:
             now = datetime.now().strftime("%H:%M")
             self.speak(f"The current time is {now}.")
         else:
-            self.speak("Sorry, I didn’t understand that command.")
+            self.speak("Sorry, I didn't understand that command.")
 
     def discover_govee_devices(self):
         headers = {"Govee-API-Key": GOVEE_API_KEY}
