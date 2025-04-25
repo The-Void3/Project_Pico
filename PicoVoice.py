@@ -4,6 +4,7 @@ import os
 import time
 import numpy as np
 import requests
+import pyttsx3
 from dotenv import load_dotenv
 from pvrecorder import PvRecorder
 from typing import Generator
@@ -19,6 +20,8 @@ class PicoVoiceEagle:
         self.access_key = os.getenv("ACCESS_KEY")
         self.eagle_profiler = pveagle.create_profiler(access_key=self.access_key)
         self.speaker_profile = None
+        self.tts_engine = pyttsx3.init()  # 🗣️ Initialize TTS engine
+        self.tts_engine.setProperty('rate', 175)
 
         if DEV_MODE and load_profile:
             print("🧪 DEV_MODE: Loading pre-saved profile...")
@@ -28,6 +31,10 @@ class PicoVoiceEagle:
                 self.speaker_profile = pveagle.EagleProfile.from_bytes(speaker_profile_bytes)
             except FileNotFoundError:
                 print("❌ No speaker_profile.eagle file found — skipping load.")
+
+    def speak(self, text: str):
+        self.tts_engine.say(text)
+        self.tts_engine.runAndWait()
 
     def speech_to_text(self, prints: bool = True, model_path: str = r"vosk-model-small-en-us-0.15") -> Generator[str, None, None]:
         start_time = time.time()
@@ -58,7 +65,7 @@ class PicoVoiceEagle:
             recorder.delete()
 
     def enroll(self):
-        print("🚨 enroll() was called!")  # Debug print for tracking
+        print("🚨 enroll() was called!")
 
         recorder = PvRecorder(
             device_index=self.DEFAULT_DEVICE_INDEX,
@@ -139,7 +146,9 @@ class PicoVoiceEagle:
                 timeout=30
             )
             data = response.json()
-            return data.get("response", "⚠️ No response from model.")
+            reply = data.get("response", "⚠️ No response from model.")
+            self.speak(reply)  # 🗣️ Speak the LLM reply aloud
+            return reply
         except requests.exceptions.Timeout:
             return "⏳ The model took too long to respond."
         except Exception as e:
