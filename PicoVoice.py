@@ -147,7 +147,6 @@ class PicoVoiceEagle:
             )
             data = response.json()
             reply = data.get("response", "⚠️ No response from model.")
-            self.speak(reply)  # 🗣️ Speak the LLM reply aloud
             return reply
         except requests.exceptions.Timeout:
             return "⏳ The model took too long to respond."

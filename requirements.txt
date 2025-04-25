@@ -5,6 +5,7 @@ customtkinter~=5.2.2
 vosk~=0.3.45
 numpy~=2.2.4
 PyQt6~=6.9.0
-pyaudio
+pyaudio~=0.2.14
 requests~=2.32.3
 pyttsx3~=2.98
+pvporcupine~=3.0.5

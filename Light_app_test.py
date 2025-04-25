@@ -1,10 +1,12 @@
 import sys
+import threading
 from PyQt6.QtWidgets import QApplication, QStackedWidget, QPushButton
 from Screens.loadingwheel import EnrollmentProgress
 from Screens.Weather_screen import WeatherScreen
 from Screens.ChatGPTScreen import ChatGPTScreen  # [ChatGPT]
 # from Screens.SiriPopupScreen import SiriPopupScreen  # [Siri]
 
+from wake_word_listener import listen_for_wake_word  # 🔊 Wake word detection
 from PicoVoice import PicoVoiceEagle, DEV_MODE
 
 
@@ -47,6 +49,8 @@ class App:
     def process_transcript(self, transcript):
         print("📥 Transcript:", transcript)
 
+        self.stack.setCurrentWidget(self.chat_screen)  # 👈 Force screen switch here
+
         command = transcript.lower()
         if "turn on the light" in command or "turn on the lights" in command:
             self.voice_assistant.govee_turn_on()
@@ -67,6 +71,11 @@ class App:
             response = self.voice_assistant.llama_query(context_prompt)
             self.chat_screen.add_message(transcript, response)
 
+    def start_wake_word_loop(self):
+        while True:
+            listen_for_wake_word()
+            self.simulate_assistant_trigger()
+
     def run(self):
         if DEV_MODE:
             self.stack.setCurrentWidget(self.weather_screen)
@@ -74,6 +83,7 @@ class App:
             self.stack.setCurrentWidget(self.enrollment_screen)
 
         self.stack.show()
+        threading.Thread(target=self.start_wake_word_loop, daemon=True).start()  # 👂 Run in background
         self.app.exec()
 
 

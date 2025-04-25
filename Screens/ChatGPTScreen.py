@@ -88,10 +88,13 @@ class ChatGPTScreen(QWidget):
         self.chat_layout.addSpacing(5)
         self.chat_layout.addLayout(assistant_container)
         self.chat_layout.addSpacing(15)
+        user_container.setContentsMargins(10, 0, 10, 0)
+        assistant_container.setContentsMargins(10, 0, 10, 0)
 
         self.conversation_history += f"User: {user_text}\nAssistant: {assistant_text}\n"
 
         QTimer.singleShot(100, lambda: self.chat_area.verticalScrollBar().setValue(self.chat_area.verticalScrollBar().maximum()))
+        QTimer.singleShot(0, self.repaint)
 
     def scroll_to_top(self):
         self.chat_area.verticalScrollBar().setValue(0)
