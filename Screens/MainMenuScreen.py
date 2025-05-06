@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from PyQt6.QtCore import Qt
 
+
 class MainMenuScreen(QWidget):
     def __init__(self, stack, weather_screen, voice_assistant):
         super().__init__()

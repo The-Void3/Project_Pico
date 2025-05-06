@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 from pvrecorder import PvRecorder
 from typing import Generator
 from vosk import Model, KaldiRecognizer
+from govee_control import turn_on, turn_off, set_color
 
 load_dotenv()
 
 DEV_MODE = True  # Set to False for real usage
+
 
 class PicoVoiceEagle:
     def __init__(self, load_profile=True):
@@ -121,18 +123,37 @@ class PicoVoiceEagle:
         recorder.delete()
         eagle.delete()
 
-    def handle_command(self, command: str):
+    def handle_command(self, command: str) -> tuple[bool, str]:
         command = command.lower()
+
         if "turn on the light" in command:
             print("🟡 Turning on the light...")
+            turn_on()
+            return True, "The light is now on."
+
         elif "turn off the light" in command:
             print("⚫ Turning off the light...")
-        elif "what time is it" in command:
-            from datetime import datetime
-            now = datetime.now().strftime("%H:%M")
-            print(f"🕒 The current time is {now}")
+            turn_off()
+            return True, "The light is now off."
+
+        elif "make the light red" in command:
+            print("🔴 Setting light to red...")
+            set_color(255, 0, 0)
+            return True, "Light set to red."
+
+        elif "make the light blue" in command:
+            print("🔵 Setting light to blue...")
+            set_color(0, 0, 255)
+            return True, "Light set to blue."
+
+        elif "make the light green" in command:
+            print("🟢 Setting light to green...")
+            set_color(0, 255, 0)
+            return True, "Light set to green."
+
         else:
             print("🤖 Command not recognized.")
+            return False, ""
 
     def llama_query(self, prompt: str) -> str:
         try:

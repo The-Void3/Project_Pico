@@ -7,14 +7,13 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from Screens.loadingwheel import EnrollmentProgress
 from Screens.Weather_screen import WeatherScreen
 from Screens.ChatGPTScreen import ChatGPTScreen  # [ChatGPT]
-# from Screens.SiriPopupScreen import SiriPopupScreen  # [Siri]
-
 from wake_word_listener import listen_for_wake_word
 from PicoVoice import PicoVoiceEagle, DEV_MODE
 
 
 class SignalBridge(QObject):
     wake_word_triggered = pyqtSignal()
+
 
 class App:
     def __init__(self):
@@ -27,7 +26,6 @@ class App:
         self.weather_screen = WeatherScreen()
         self.chat_screen = ChatGPTScreen(self.stack, self.weather_screen)  # [ChatGPT]
         self.chat_screen.voice_request_signal.connect(self.simulate_assistant_trigger)  # [ChatGPT]
-        # self.siri_popup = SiriPopupScreen(self.stack, self.weather_screen)  # [Siri]
 
         self.enrollment_screen = EnrollmentProgress(
             self.stack,
@@ -42,7 +40,6 @@ class App:
         self.stack.addWidget(self.enrollment_screen)
         self.stack.addWidget(self.weather_screen)
         self.stack.addWidget(self.chat_screen)  # [ChatGPT]
-        # self.stack.addWidget(self.siri_popup)  # [Siri]
 
         self.signal_bridge = SignalBridge()
         self.signal_bridge.wake_word_triggered.connect(self.simulate_assistant_trigger)
@@ -55,23 +52,23 @@ class App:
             # 1. Capture voice input
             transcript = next(self.voice_assistant.speech_to_text())
 
-            # 2. Build a prompt that includes full chat history
+            # 2. Try handling as a smart home command first
+            handled, smart_reply = self.voice_assistant.handle_command(transcript)
+            if handled:
+                self.chat_screen.add_message(transcript, smart_reply)
+                self.voice_assistant.speak(smart_reply)
+                return
+
+            # 3. Build LLM prompt
             history = self.chat_screen.conversation_history  # [ChatGPT]
             context_prompt = f"{history}User: {transcript}\nAssistant:"  # [ChatGPT]
 
-            # 3. Send it to the local LLaMA model
-            response = self.voice_assistant.llama_query(context_prompt)  # For [ChatGPT], change to context_prompt. For [Siri], change to transcript
+            # 4. Send it to the local LLaMA model
+            response = self.voice_assistant.llama_query(context_prompt)
 
-            # 4. Display on the chat screen
+            # 5. Display on the chat screen & LLM speaks the reply
             self.chat_screen.add_message(transcript, response)  # [ChatGPT]
-
-            # 5. LLM speaks the reply
             self.voice_assistant.speak(response)
-
-            # === Siri-style ===
-            # self.stack.setCurrentWidget(self.siri_popup)  # [Siri]
-            # self.siri_popup.show_query(transcript)        # [Siri]
-            # self.siri_popup.show_response(response)       # [Siri]
 
         except Exception as e:
             print(f"❌ Error during assistant trigger: {e}")
