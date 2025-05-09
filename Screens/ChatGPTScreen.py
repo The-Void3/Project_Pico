@@ -13,14 +13,21 @@ class ChatGPTScreen(QWidget):
         self.conversation_history = ""
         self.last_cleared = QDateTime.currentDateTime()
 
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 230);")
+        self.setStyleSheet("background-color: #111; color: white;")
 
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.chat_area = QScrollArea()
         self.chat_area.setWidgetResizable(True)
-        self.chat_area.setStyleSheet("border: none;")
+        self.chat_area.setStyleSheet("""
+        QScrollArea {
+        background-color: transparent;
+        }
+        QWidget {
+        background-color: transparent;
+        }
+        """)
 
         self.chat_widget = QWidget()
         self.chat_layout = QVBoxLayout()
