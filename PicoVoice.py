@@ -163,7 +163,7 @@ class PicoVoiceEagle:
             response = requests.post(
                 "http://localhost:11434/api/generate",
                 json={
-                    "model": "tinyllama",
+                    "model": "gemma2:2b",
                     "prompt": prompt,
                     "stream": False
                 },
