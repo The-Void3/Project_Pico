@@ -3,7 +3,8 @@ import threading
 import time
 from PyQt6.QtWidgets import QApplication, QStackedWidget, QPushButton
 from PyQt6.QtCore import QObject, pyqtSignal
-
+from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtCore import Qt
 from Screens.loadingwheel import EnrollmentProgress
 from Screens.Weather_screen import WeatherScreen
 from Screens.ChatGPTScreen import ChatGPTScreen  # [ChatGPT]
@@ -18,6 +19,16 @@ class SignalBridge(QObject):
 class App:
     def __init__(self):
         self.app = QApplication(sys.argv)
+        # ✅ Set global dark theme
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(17, 17, 17))  # dark gray background
+        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)  # white text
+        palette.setColor(QPalette.ColorRole.Button, QColor(50, 50, 50))  # button background
+        palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)  # button text
+        palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))  # text field / input background
+        palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+
+        self.app.setPalette(palette)
         self.stack = QStackedWidget()
         self.stack.resize(1200, 800)
 
