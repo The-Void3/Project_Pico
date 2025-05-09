@@ -30,7 +30,7 @@ class WeatherScreen(QWidget):
         container_layout = QVBoxLayout()
         container_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         container.setLayout(container_layout)
-        container.setStyleSheet("background-color: transparent;")
+        container.setStyleSheet("background-color: black;")
 
         # Time
         self.time_label = QLabel()
