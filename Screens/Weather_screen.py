@@ -15,21 +15,22 @@ class WeatherScreen(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Aurora background
         self.setStyleSheet("""
-            background-image: url(/home/PicoVoice/Project_Pico/Screens/aurora.jp);
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            border: none;
+            QWidget {
+                background-image: url(C:/Users/rickb/PycharmProjects/SeniorProject/Screens/aurora.jpg);
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+            }
         """)
-        self.setContentsMargins(0, 0, 0, 0)
 
         # Transparent container
         container = QWidget()
         container_layout = QVBoxLayout()
         container_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         container.setLayout(container_layout)
-        container.setStyleSheet("background-color: black;")
+        container.setStyleSheet("background-color: transparent;")
 
         # Time
         self.time_label = QLabel()

@@ -34,17 +34,35 @@ class ChatGPTScreen(QWidget):
         back_btn = QPushButton("← Back")
         back_btn.setFixedWidth(100)
         back_btn.clicked.connect(self.back_to_main)
-        back_btn.setStyleSheet("padding: 8px; font-weight: bold;")
+        back_btn.setStyleSheet("""
+        padding: 8px;
+        font-weight: bold;
+        background-color: #333;
+        color: white;
+        border-radius: 6px;
+        """)
 
         clear_btn = QPushButton("🗑️ Clear Chat")
         clear_btn.setFixedWidth(120)
         clear_btn.clicked.connect(self.clear_chat)
-        clear_btn.setStyleSheet("padding: 8px; font-weight: bold;")
+        clear_btn.setStyleSheet("""
+        padding: 8px;
+        font-weight: bold;
+        background-color: #333;
+        color: white;
+        border-radius: 6px;
+        """)
 
         top_btn = QPushButton("⬆️ Top")
         top_btn.setFixedWidth(100)
         top_btn.clicked.connect(self.scroll_to_top)
-        top_btn.setStyleSheet("padding: 8px; font-weight: bold;")
+        top_btn.setStyleSheet("""
+        padding: 8px;
+        font-weight: bold;
+        background-color: #333;
+        color: white;
+        border-radius: 6px;
+        """)
 
         button_bar.addWidget(back_btn)
         button_bar.addStretch()

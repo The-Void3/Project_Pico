@@ -4,7 +4,7 @@ import math
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont
 from PyQt6.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QStackedWidget
-from .Weather_screen import WeatherScreen
+from Screens.Weather_screen import WeatherScreen
 from PicoVoice import PicoVoiceEagle, DEV_MODE
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -54,6 +54,7 @@ class LoadingSpinner(QWidget):
 
         painter.end()
 
+
 class EnrollmentThread(QThread):
     finished = pyqtSignal()
 
@@ -64,6 +65,7 @@ class EnrollmentThread(QThread):
             pico = PicoVoiceEagle()
             pico.enroll()
         self.finished.emit()
+
 
 class EnrollmentProgress(QWidget):
     def __init__(self, stack, weather_screen, voice_assistant):
@@ -91,9 +93,9 @@ class EnrollmentProgress(QWidget):
         self.enrollment_thread.finished.connect(self.on_enrollment_complete)
         self.enrollment_thread.start()
 
-
     def on_enrollment_complete(self):
         self.stack.setCurrentWidget(self.weather_screen)
+
 
 if __name__ == "__main__":
     from PicoVoice import PicoVoiceEagle
