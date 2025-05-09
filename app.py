@@ -34,6 +34,7 @@ class App:
         )
 
         self.test_button = QPushButton("🎤 Activate Assistant")
+        self.test_button.setStyleSheet("background-color: black; color: white;")
         self.test_button.clicked.connect(self.simulate_assistant_trigger)
         self.weather_screen.layout().addWidget(self.test_button)
 
@@ -85,7 +86,7 @@ class App:
         else:
             self.stack.setCurrentWidget(self.enrollment_screen)
 
-        self.stack.show()
+        self.stack.showFullScreen()
         threading.Thread(target=self.start_wake_word_loop, daemon=True).start()  # 👂 Run in background
         self.app.exec()
 

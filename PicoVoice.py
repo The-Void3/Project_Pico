@@ -1,4 +1,5 @@
 import ast
+import re
 import pveagle
 import os
 import time
@@ -35,6 +36,8 @@ class PicoVoiceEagle:
                 print("❌ No speaker_profile.eagle file found — skipping load.")
 
     def speak(self, text: str):
+        text = re.sub(r"^\s*[\*\-]\s+", "- ", text, flags=re.MULTILINE)
+        text = re.sub(r"[*_~`#]", "", text)
         self.tts_engine.say(text)
         self.tts_engine.runAndWait()
 
@@ -152,7 +155,7 @@ class PicoVoiceEagle:
             return True, "Light set to green."
 
         else:
-            print("🤖 Command not recognized.")
+            print("🤖 Not a Smart Command, Sent to LLM.")
             return False, ""
 
     def llama_query(self, prompt: str) -> str:
@@ -160,7 +163,7 @@ class PicoVoiceEagle:
             response = requests.post(
                 "http://localhost:11434/api/generate",
                 json={
-                    "model": "llama3",
+                    "model": "gemma2:2b",
                     "prompt": prompt,
                     "stream": False
                 },

@@ -4,7 +4,8 @@ import pvporcupine
 import pyaudio
 from dotenv import load_dotenv
 
-load_dotenv()
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+load_dotenv(dotenv_path=env_path)
 ACCESS_KEY = os.getenv("ACCESS_KEY")
 
 
